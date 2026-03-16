@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetPrep UdeA - Cursos Preparatorios para Medicina Veterinaria</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    <!-- Payment Processing (Wompi) -->
+    <script src="payment.js"></script>
+    <!-- AI Professor System -->
+    <script src="ai-professor.js"></script>
+    <!-- Admin Authentication -->
+    <script src="admin-auth.js"></script>
+    <!-- Notification System -->
+    <script src="notifications.js"></script>
+</head>
+<body>
+    <header id="inicio">
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-paw"></i>
+                <span>VetPrep UdeA</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#cursos">Cursos</a></li>
+                <li><a href="#beneficios">Beneficios</a></li>
+                <li><a href="#testimonios">Testimonios</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Prepárate para estudiar Medicina Veterinaria en la UdeA</h1>
+            <p>Cursos especializados diseñados para que obtengas un puntaje competitivo en las pruebas de admisión y guarantees tu ingreso a la Facultad de Ciencias Agrarias de la Universidad de Antioquia.</p>
+            <div class="hero-buttons">
+                <a href="#cursos" class="btn btn-primary">Ver Cursos</a>
+                <a href="#contacto" class="btn btn-secondary">Inscribirse Ahora</a>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">85%</span>
+                    <span class="stat-label">Tasa de aprobación</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Estudiantes ingresados</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">Años de experiencia</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?w=600&h=500&fit=crop" alt="Veterinaria">
+        </div>
+    </section>
+
+    <section id="cursos" class="courses">
+        <div class="section-header">
+            <h2>Nuestros Cursos</h2>
+            <p>Programa integral de preparación para las pruebas de admisión de la UdeA</p>
+        </div>
+        <div class="courses-grid">
+            <div class="course-card">
+                <div class="course-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>Curso Completov</h3>
+                <p class="course-description">Preparación integral con todos los módulos necesarios para tu examen de admisión.</p>
+                <ul class="course-features">
+                    <li><i class="fas fa-check"></i> 120 horas de clases</li>
+                    <li><i class="fas fa-check"></i> Material de estudio completo</li>
+                    <li><i class="fas fa-check"></i> Simulacros de examen</li>
+                    <li><i class="fas fa-check"></i> Tutorías personalizadas</li>
+                    <li><i class="fas fa-check"></i> Acceso por 6 meses</li>
+                </ul>
+                <div class="course-price">
+                    <span class="price">$450.000</span>
+                    <span class="discount">20% dto.</span>
+                </div>
+                <button class="btn btn-primary" onclick="showCourseDetails('completo')">Más Información</button>
+            </div>
+            <div class="course-card featured">
+                <div class="featured-badge">Más Popular</div>
+                <div class="course-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Curso Intensivo</h3>
+                <p class="course-description">Programa acelerado ideal para quienes tienen poco tiempo y necesitan resultados rápidos.</p>
+                <ul class="course-features">
+                    <li><i class="fas fa-check"></i> 80 horas de clases</li>
+                    <li><i class="fas fa-check"></i> Material exclusivo</li>
+                    <li><i class="fas fa-check"></i> 5 simulacros completos</li>
+                    <li><i class="fas fa-check"></i> Grupo de apoyo</li>
+                    <li><i class="fas fa-check"></i> Acceso por 4 meses</li>
+                </ul>
+                <div class="course-price">
+                    <span class="price">$320.000</span>
+                    <span class="discount">15% dto.</span>
+                </div>
+                <button class="btn btn-primary" onclick="showCourseDetails('intensivo')">Más Información</button>
+            </div>
+            <div class="course-card">
+                <div class="course-icon">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <h3>Curso Virtual</h3>
+                <p class="course-description">Estudia desde cualquier lugar con nuestro programa 100% online con clases en vivo.</p>
+                <ul class="course-features">
+                    <li><i class="fas fa-check"></i> Clases en vivo diarias</li>
+                    <li><i class="fas fa-check"></i> Plataforma 24/7</li>
+                    <li><i class="fas fa-check"></i> Grabaciones disponibles</li>
+                    <li><i class="fas fa-check"></i> Tutorías online</li>
+                    <li><i class="fas fa-check"></i> Acceso por 6 meses</li>
+                </ul>
+                <div class="course-price">
+                    <span class="price">$280.000</span>
+                    <span class="discount">10% dto.</span>
+                </div>
+                <button class="btn btn-primary" onclick="showCourseDetails('virtual')">Más Información</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="beneficios" class="benefits">
+        <div class="section-header">
+            <h2>¿Por Qué Elegirnos?</h2>
+            <p>Te preparamos específicamente para la prueba de ingreso a la Universidad de Antioquia</p>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Profesores Especializados</h3>
+                <p>Docentes con experiencia en la prueba de la UdeA y conocimiento actualizado del examen.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3>Material Actualizado</h3>
+                <p>Contenido basado en las últimas versiones del examen de admisión de la UdeA.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Seguimiento Personalizado</h3>
+                <p>Monitoreamos tu progreso y te orientamos en las áreas que necesitan más atención.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Comunidad de Estudio</h3>
+                <p>Únete a grupos de estudio con otros aspirantes y mantén la motivación alta.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Flexibilidad de Tiempo</h3>
+                <p>Horarios adaptados a tu disponibilidad, incluyendo opciones presenciales y virtuales.</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3>Garantía de Resultados</h3>
+                <p>Si no ingresas, te damos acceso gratuito al siguiente ciclo de preparación.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="about-content">
+            <h2>Sobre la Facultad de Ciencias Agrarias - UdeA</h2>
+            <p>La Universidad de Antioquia es una de las instituciones educativas más prestigiosas de Colombia. La Facultad de Ciencias Agrarias ofrece el programa de Medicina Veterinaria, una de las carreras más demandadas y competitivas en el departamento.</p>
+            <div class="about-stats">
+                <div class="about-stat">
+                    <i class="fas fa-university"></i>
+                    <span>Universidad de Antioquia</span>
+                </div>
+                <div class="about-stat">
+                    <i class="fas fa-door-open"></i>
+                    <span>Admisión semestral</span>
+                </div>
+                <div class="about-stat">
+                    <i class="fas fa-star"></i>
+                    <span>Programa acreditado</span>
+                </div>
+            </div>
+            <a href="https://www.udea.edu.co" target="_blank" class="btn btn-secondary">Visitar UdeA</a>
+        </div>
+        <div class="about-image">
+            <img src="https://images.unsplash.com/photo-1545167496-c1e092d383f2?w=600&h=400&fit=crop" alt="Universidad de Antioquia">
+        </div>
+    </section>
+
+    <section id="testimonios" class="testimonials">
+        <div class="section-header">
+            <h2>Testimonios de Éxito</h2>
+            <p>Estudiantes que lograron su sueño de estudiar en la UdeA</p>
+        </div>
+        <div class="testimonials-slider">
+            <div class="testimonial-card">
+                <div class="testimonial-image">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Estudiante">
+                </div>
+                <p class="testimonial-text">"Gracias a VetPrep logré el puntaje necesario para ingresar a Veterinary UdeA. Los profesores son excelentes y el material muy completo."</p>
+                <h4>María José García</h4>
+                <span class="testimonial-result">Ingresó 2024-2</span>
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-image">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Estudiante">
+                </div>
+                <p class="testimonial-text">"El curso intensivo me ayudó a mejorar mi puntaje en solo 3 meses. Altamente recomendado para quienes tienen poco tiempo."</p>
+                <h4>Carlos Andrés López</h4>
+                <span class="testimonial-result">Ingresó 2024-1</span>
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-image">
+                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Estudiante">
+                </div>
+                <p class="testimonial-text">"La modalidad virtual me permitió estudiar desde mi pueblo. El apoyo de los tutores fue fundamental para mi preparación."</p>
+                <h4>Sofia Hernández</h4>
+                <span class="testimonial-result">Ingresó 2023-2</span>
+                <div class="testimonial-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="faq">
+        <div class="section-header">
+            <h2>Preguntas Frecuentes</h2>
+        </div>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Cuándo son las fechas de examen de admisión UdeA?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>La Universidad de Antioquia realiza dos procesos de admisión al año (febrero y agosto). Te recomendamos iniciar tu preparación al menos 3 meses antes de la fecha del examen.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Qué puntaje se necesita para entrar a Medicina Veterinaria UdeA?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>El puntaje de corte varía cada semestre dependiendo del número de aspirantes y cupos disponibles. Generalmente se requiere estar en el percentil 85 o superior para tener posibilidades reales de ingreso.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Cuánto tiempo dura el curso?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>El curso completo tiene una duración de 3 meses (120 horas), el intensivo dura 6 semanas (80 horas), y el virtual depende de tu ritmo de estudio con acceso por 6 meses.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>¿Necesito conocimientos previos?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>No, nuestros cursos están diseñados para estudiantes de cualquier nivel. Comenzamos desde los fundamentos y avanzamos progresivamente hacia temas más complejos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacto" class="contact">
+        <div class="section-header">
+            <h2>¿Listo para Comenzar?</h2>
+            <p>Inscríbete ahora y da el primer paso hacia tu carrera en Medicina Veterinaria</p>
+        </div>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Información de Contacto</h3>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>(604) 123 4567</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-whatsapp"></i>
+                    <span>310 123 4567</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>info@vetprepudea.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Medellín, Antioquia, Colombia</span>
+                </div>
+    <div class="social-links">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-whatsapp"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+    </div>
+</div>
+</div>
+</section>
+
+<!-- Admin Login Modal (hidden by default) -->
+<div class="modal" id="adminLoginModal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h2>Inicio de Sesión Administrador</h2>
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="adminEmail">Correo Electrónico</label>
+                <input type="email" id="adminEmail" name="adminEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Contraseña</label>
+                <input type="password" id="adminPassword" name="adminPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+        </form>
+        <div id="adminLoginMessage" class="admin-login-message"></div>
+    </div>
+</div>
+
+</body>
+</html>
