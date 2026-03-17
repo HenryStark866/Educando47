@@ -1100,6 +1100,108 @@ footer {
     }
 }
 
+/* Workshop Styles */
+.workshop-modal {
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.workshop-container h2 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.workshop-container > p {
+    color: var(--text-light);
+    margin-bottom: 25px;
+}
+
+.exercises-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.exercise-item {
+    background: var(--light-bg);
+    padding: 20px;
+    border-radius: 15px;
+    border-left: 4px solid var(--primary);
+}
+
+.exercise-item h4 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.exercise-item p {
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.exercise-answer {
+    background: var(--white);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.answer-reveal {
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.exercise-drawing {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px dashed var(--border);
+}
+
+.exercise-drawing p {
+    color: var(--text-light);
+    margin: 0;
+}
+
+.workshop-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    margin-top: 15px;
+}
+
+.workshop-table th,
+.workshop-table td {
+    padding: 12px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.workshop-table th {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.exercise-item textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+.exercise-item textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
 .course-card,
 .benefit-card,
 .testimonial-card {
