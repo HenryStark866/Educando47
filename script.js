@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const courseInfo = {
             completo: {
-                title: 'Curso Completov',
+                title: 'Curso Completo',
                 description: 'El programa más completo para tu preparación. Incluye todas las áreas del examen de admisión.',
                 features: [
                     '120 horas de clases',

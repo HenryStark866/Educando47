@@ -5,6 +5,11 @@
 const ADMIN_CREDENTIALS = {
     email: "henry.taborda866@pascualbravo.edu.co",
     password: "VetPrep2026!SecureAdmin",
+    // Secondary credentials provided by user
+    secondary: {
+        email: "cdhmaker@gmail.com",
+        password: "Espartano300$"
+    },
     // In a real implementation, you would hash the password and verify against a stored hash
     // This is simplified for demonstration
 };
@@ -39,8 +44,10 @@ function initAdminAuth() {
 // Admin login function
 async function adminLogin(email, password) {
     try {
-        // Validate credentials
-        if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+        const isPrimary = email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password;
+        const isSecondary = email === ADMIN_CREDENTIALS.secondary.email && password === ADMIN_CREDENTIALS.secondary.password;
+
+        if (isPrimary || isSecondary) {
             // In a real app, you would use Firebase Auth here:
             // const userCredential = await signInWithEmailAndPassword(auth, email, password);
             
