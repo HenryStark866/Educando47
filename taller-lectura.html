@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetPrep UdeA - Simulacro Oficial Competencia Lectora</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 
+                            600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b',
+                        }
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%2310b981%22 d=%22M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-4.2-31.4-11.9l-52.7-47.5c-37.4 19.3-81.6 19.3-119 0l-52.7 47.5C137 475.8 125.6 480 114.1 480c-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM318.1 189.7c-32.4-10.6-46.9-53.9-32.6-96.8s42.1-79.6 84.4-58.5s46.9 53.9 32.6 96.8s-42.1 79.6-84.4 58.5z%22/></svg>">
+    
+    <style>
+        .option-radio:checked + div {
+            border-color: #0284c7; /* Sky 600 */
+            background-color: #f0f9ff; /* Sky 50 */
+        }
+        .option-radio:checked + div .indicator {
+            background-color: #0284c7;
+            color: white;
+            border-color: #0284c7;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-sky-900 border-b-4 border-sky-600 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-sky-100 hover:text-white transition-colors mr-2">
+                    <i class="fa-solid fa-arrow-left text-xl"></i>
+                </a>
+                <i class="fa-solid fa-book-open-reader text-sky-400 text-3xl"></i>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight text-white leading-tight">Competencia Lectora</h1>
+                    <p class="text-xs text-sky-200 uppercase tracking-widest font-semibold flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></span> Nivel Avanzado UdeA
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Timer Display -->
+            <div class="bg-gray-900/50 backdrop-blur-sm border border-sky-800 rounded-xl px-4 py-2 flex items-center gap-3 shadow-inner">
+                <i class="fa-regular fa-clock text-sky-400 text-lg"></i>
+                <div id="countdown-timer" class="text-white font-mono text-xl font-bold tracking-widest">00:00:00</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Pre-requisite Modal -->
+    <div id="student-modal" class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100 p-8 transform transition-all">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                    <i class="fa-solid fa-pen-nib"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Lectura Crítica</h2>
+                <p class="text-sm text-gray-500 mt-2">Registra tus datos para guardar tus resultados automáticamente en la Firebase de VetPrep.</p>
+            </div>
+            <form id="start-exam-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Completo</label>
+                    <input type="text" id="student-name" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Correo Electrónico</label>
+                    <input type="email" id="student-email" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block">
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
+                    <ul class="text-xs text-yellow-700 space-y-1 list-disc pl-4">
+                        <li>El examen consta de <b>40 preguntas</b>.</li>
+                        <li>Tendrás <b>1 hora y 30 minutos</b>.</li>
+                        <li>Basado en tipologías textuales que usa la Universidad de Antioquia.</li>
+                    </ul>
+                </div>
+                
+                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all mt-4 transform hover:-translate-y-0.5">
+                    Comenzar Simulacro
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content split layout -->
+    <main class="flex-grow max-w-[1400px] mx-auto w-full relative flex flex-col lg:flex-row hidden" id="main-ui">
+        
+        <!-- Left Pane: Reading Text -->
+        <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 lg:h-[calc(100vh-80px)] overflow-y-auto lg:sticky lg:top-0 bg-white shadow-[10px_0_15px_-3px_rgba(0,0,0,0.02)] border-r border-gray-200 z-10 custom-scrollbar">
+            <div class="max-w-2xl mx-auto">
+                <span class="inline-block py-1 px-3 bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider rounded-md mb-4 border border-sky-200">TEXTO 1 (Preguntas 1 a 20)</span>
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-6 leading-tight">El enigma de la memoria en los cefalópodos</h2>
+                <div class="prose prose-sky max-w-none text-gray-700 leading-relaxed space-y-4 text-[15px] font-medium text-justify">
+                    <p>
+                        Los pulpos, sepias y calamares, pertenecientes a la clase de los cefalópodos, poseen los sistemas nerviosos más grandes y complejos de todos los invertebrados. Un pulpo común (Octopus vulgaris) tiene alrededor de 500 millones de neuronas, una cifra comparable a la de algunos mamíferos pequeños. Sin embargo, a diferencia de los vertebrados, donde la mayoría de las neuronas se concentran en el cerebro, un pulpo distribuye dos tercios de sus neuronas en los cordones nerviosos de sus tentáculos. Esta arquitectura distribuida les confiere una inteligencia alienígena, permitiendo que un tentáculo seccionado siga reaccionando a estímulos, buscando comida e intentando llevarla a una boca inexistente.
+                    </p>
+                    <p>
+                        La evolución de esta inteligencia es un misterio biológico de primer orden. Los cefalópodos modernos perdieron sus conchas protectoras ancestrales en algún momento de la historia evolutiva, volviéndose extremadamente vulnerables a los depredadores en un océano tridimensional lleno de peces veloces y con mandíbulas fuertes. Para sobrevivir sin armadura, tuvieron que desarrollar comportamientos complejos: la capacidad de camuflarse instantáneamente manipulando cromatóforos en su piel, la habilidad de resolver problemas, utilizar herramientas rudimentarias y recordar la ubicación de escondites y fuentes de alimento.
+                    </p>
+                    <p>
+                        Lo asombroso de la memoria del pulpo es su corta esperanza de vida. Mientras que animales inteligentes como los elefantes, cuervos o chimpancés viven décadas (lo que justifica la inversión evolutiva en un gran cerebro capaz de acumular memoria a largo plazo), la mayoría de los pulpos apenas vive de uno a dos años. Mueren poco después de reproducirse. ¿Para qué desarrollar un cerebro tan costoso metabólicamente para una vida tan efímera?
+                    </p>
+                    <p>
+                        Algunos biólogos evolutivos sostienen que la presión selectiva fue tan intensa tras la pérdida de la concha, que la inteligencia no fue una estrategia a largo plazo, sino un "parche" urgente para la supervivencia diaria. Su memoria episódica les permite no buscar comida en la misma cueva donde estuvieron ayer y no encontraron nada, optimizando así la recolección de energía en sus cortas vidas. Así, los cefalópodos nos demuestran que la inteligencia no es producto de un único camino evolutivo ligado a la longevidad y la socialización, sino que puede surgir como una espléndida y solitaria adaptación defensiva en las profundidades del mar.
+                    </p>
+                </div>
+                
+                <div class="my-10 border-t-2 border-dashed border-gray-300"></div>
+
+                <span class="inline-block py-1 px-3 bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider rounded-md mb-4 border border-emerald-200">TEXTO 2 (Preguntas 21 a 40)</span>
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-6 leading-tight">Fragmento: La peste (Albert Camus)</h2>
+                <div class="prose prose-emerald max-w-none text-gray-700 leading-relaxed space-y-4 text-[15px] font-medium text-justify">
+                    <p>
+                        Los curiosos acontecimientos que constituyen el tema de esta crónica se produjeron en el año 194... en Orán. Para el narrador, en general, estuvieron fuera de lugar y fueron un poco excepcionales. A primera vista, Orán es, en efecto, una ciudad ordinaria y nada más que una prefectura francesa en la costa argelina.
+                    </p>
+                    <p>
+                        La ciudad misma, hay que confesarlo, es fea. De aspecto tranquilo, se necesita cierto tiempo para observar lo que la hace diferente de tantas otras ciudades comerciales bajo todas las latitudes. ¿Cómo sugerir, por ejemplo, una ciudad sin palomas, sin árboles ni jardines, donde no se oye batir de alas ni el roce de una hoja; un lugar neutro en una palabra? El cambio de las estaciones solo se lee en el cielo. La primavera se anuncia únicamente por la cualidad del aire o por los canastillos de flores que traen los pequeños vendedores de los arrabales; es una primavera que se vende en los mercados. Durante el verano, el sol incendia las casas resecas y cubre los muros de una ceniza gris; entonces solo se puede vivir a la sombra de los postigos cerrados. En otoño es un diluvio de barro. Los días hermosos solo llegan en invierno.
+                    </p>
+                    <p>
+                        Una manera cómoda de conocer una ciudad es averiguar cómo se trabaja en ella, cómo se ama y cómo se muere. En nuestra pequeña ciudad, es que el clima obliga, todo se hace a la vez, con aire frenético y ausente. Es decir, que uno se aburre e intenta adquirir hábitos. Nuestros conciudadanos trabajan mucho, pero siempre para enriquecerse. Se interesan sobre todo por el comercio y se ocupan en primer lugar, según su propia expresión, de "hacer negocios".
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Pane: Questions -->
+        <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 bg-gray-50 lg:h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar relative">
+            <div id="questions-container" class="space-y-6 max-w-2xl mx-auto">
+                <!-- Populated via JS -->
+            </div>
+
+            <!-- Submit Panel -->
+            <div id="submit-panel" class="mt-12 bg-white rounded-2xl shadow-xl p-8 border border-gray-200 text-center relative overflow-hidden max-w-2xl mx-auto mb-10">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sky-400 to-emerald-500"></div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Entregar Examen</h3>
+                <p class="text-gray-500 mb-6 max-w-lg mx-auto text-sm">Al finalizar tu nota se guardará automáticamente en Firebase. Asegúrate de verificar tus respuestas de los dos textos.</p>
+                
+                <div id="unanswered-warning" class="hidden mb-6 inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 rounded-lg font-medium border border-orange-200 text-sm">
+                    <i class="fa-solid fa-circle-exclamation"></i> Faltan <span id="unanswered-count" class="font-bold">0</span> por responder.
+                </div>
+
+                <button id="finish-exam-btn" class="bg-gray-900 hover:bg-sky-600 text-white text-lg font-bold py-4 px-12 rounded-full transition-colors shadow-xl w-full sm:w-auto">
+                    Finalizar Prueba
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Progress -->
+    <div id="progress-bar-container" class="fixed bottom-0 left-0 w-full h-2 bg-gray-200 hidden z-50">
+        <div id="progress-bar" class="h-full bg-sky-500 transition-all duration-300 w-0"></div>
+    </div>
+
+    <!-- Custom Scrollbar -->
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+
+    <!-- Module JS -->
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./workshop-storage.js"></script>
+    <script type="module" src="./taller-lectura.js"></script>
+
+</body>
+</html>
