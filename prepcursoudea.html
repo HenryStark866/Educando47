@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetPrep UdeA - Simulador de Admisión</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn.selected {
+            background-color: #d1fae5; /* emerald-100 */
+            border-color: #10b981; /* emerald-500 */
+            color: #065f46; /* emerald-800 */
+        }
+        
+        /* Ocultar barra de scroll en el panel de números */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- ==========================================
+         NAVBAR
+         ========================================== -->
+    <nav class="bg-emerald-700 text-white shadow-md z-40 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-paw text-emerald-300 text-2xl"></i>
+                    <span class="font-bold text-xl tracking-tight">VetPrep UdeA</span>
+                </div>
+                <div id="timerDisplay" class="hidden items-center gap-2 bg-emerald-800 px-4 py-1.5 rounded-full font-mono font-bold text-lg">
+                    <i class="fa-regular fa-clock text-emerald-300"></i>
+                    <span id="timeRemaining">01:30:00</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         PANTALLA DE INICIO (INSTRUCCIONES)
+         ========================================== -->
+    <main id="startScreen" class="flex-grow flex items-center justify-center p-4">
+        <div class="max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-emerald-50 p-8 border-b border-emerald-100 text-center">
+                <i class="fa-solid fa-user-doctor text-5xl text-emerald-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-slate-900 mb-2">Simulador Oficial de Admisión</h1>
+                <p class="text-slate-600">Entrenamiento enfocado en Medicina Veterinaria</p>
+            </div>
+            
+            <div class="p-8 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-3"><i class="fa-solid fa-list-check text-emerald-500 mr-2"></i>Estructura del Examen</h2>
+                    <ul class="space-y-2 text-slate-600 ml-6 list-disc">
+                        <li><strong>Razonamiento Lógico:</strong> Proporcionalidad, geometría, secuencias y lógica matemática.</li>
+                        <li><strong>Competencia Lectora:</strong> Análisis de textos argumentativos e informativos (enfoque biológico).</li>
+                        <li><strong>Metodología:</strong> Al finalizar, el sistema te mostrará la guía paso a paso de cómo se resolvía cada pregunta correctamente.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                    <p class="text-amber-800 text-sm"><strong>Recomendación:</strong> Ten a mano papel y lápiz. Lee cuidadosamente los textos. El examen original dura 3 horas, este simulacro intensivo de 20 preguntas está diseñado para 1 hora y 30 minutos.</p>
+                </div>
+
+                <div class="pt-4 text-center">
+                    <button onclick="startExam()" class="bg-emerald-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 hover:shadow-lg transition transform hover:-translate-y-1">
+                        Comenzar Examen Ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         PANTALLA DEL EXAMEN
+         ========================================== -->
+    <main id="examScreen" class="hidden flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-6">
+        
+        <!-- Panel Lateral: Navegación de Preguntas -->
+        <aside class="md:w-64 flex-shrink-0 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col h-fit md:sticky md:top-24">
+            <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">Navegación</h3>
+            <div class="flex gap-4 mb-4 text-xs font-semibold">
+                <div class="flex items-center gap-1"><div class="w-3 h-3 bg-slate-200 rounded-full"></div> Pendiente</div>
+                <div class="flex items-center gap-1"><div class="w-3 h-3 bg-emerald-500 rounded-full"></div> Respondida</div>
+            </div>
+            <div id="questionGrid" class="grid grid-cols-5 gap-2 overflow-y-auto no-scrollbar max-h-48 md:max-h-96">
+                <!-- Se llena con JS -->
+            </div>
+            <button onclick="confirmFinishExam()" class="mt-6 w-full bg-slate-800 text-white py-2 rounded-lg font-bold hover:bg-slate-900 transition">
+                Finalizar Examen
+            </button>
+        </aside>
+
+        <!-- Área Principal: Pregunta -->
+        <div class="flex-grow bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <span id="subjectBadge" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Materia</span>
+                <span class="text-slate-500 font-medium">Pregunta <span id="currentQNum">1</span> de <span id="totalQNum">20</span></span>
+            </div>
+
+            <!-- Contenedor del Texto de Lectura (Si aplica) -->
+            <div id="readingContextBox" class="hidden mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200 text-slate-700 leading-relaxed text-sm md:text-base text-justify shadow-inner">
+                <!-- Texto de lectura -->
+            </div>
+
+            <!-- Enunciado de la Pregunta -->
+            <h2 id="questionText" class="text-xl font-medium text-slate-900 mb-8 leading-snug">
+                <!-- Enunciado -->
+            </h2>
+
+            <!-- Opciones -->
+            <div id="optionsContainer" class="space-y-3 mb-10">
+                <!-- Se llena con JS -->
+            </div>
+
+            <!-- Botones Siguiente / Anterior -->
+            <div class="flex justify-between border-t border-slate-100 pt-6">
+                <button id="btnPrev" onclick="navigateQuestion(-1)" class="px-6 py-2 text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition disabled:opacity-50 font-medium">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>Anterior
+                </button>
+                <button id="btnNext" onclick="navigateQuestion(1)" class="px-6 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition font-bold">
+                    Siguiente<i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==========================================
+         PANTALLA DE RESULTADOS Y RETROALIMENTACIÓN
+         ========================================== -->
+    <main id="resultsScreen" class="hidden flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Resumen de Puntuación -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8 text-center mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">¡Examen Finalizado!</h2>
+            <p class="text-slate-600 mb-8">Aquí tienes el análisis de tu rendimiento.</p>
+            
+            <div class="flex flex-col md:flex-row justify-center gap-8 items-center">
+                <div class="w-40 h-40 rounded-full border-8 border-slate-100 flex flex-col items-center justify-center relative">
+                    <!-- Circular progress -->
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                        <circle id="scoreCircle" cx="50" cy="50" r="46" fill="transparent" stroke="#10b981" stroke-width="8" stroke-dasharray="289" stroke-dashoffset="289" class="transition-all duration-1000 ease-out"></circle>
+                    </svg>
+                    <span id="scoreText" class="text-4xl font-black text-slate-800 relative z-10">0</span>
+                    <span class="text-sm text-slate-500 relative z-10">de 20</span>
+                </div>
+                
+                <div class="text-left space-y-4">
+                    <div class="bg-slate-50 px-6 py-3 rounded-xl border border-slate-100 flex justify-between items-center gap-6">
+                        <span class="font-medium text-slate-600">Razonamiento Lógico:</span>
+                        <span id="scoreLogica" class="font-bold text-lg text-slate-800">0/10</span>
+                    </div>
+                    <div class="bg-slate-50 px-6 py-3 rounded-xl border border-slate-100 flex justify-between items-center gap-6">
+                        <span class="font-medium text-slate-600">Competencia Lectora:</span>
+                        <span id="scoreLectora" class="font-bold text-lg text-slate-800">0/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guía de Estudio / Explicaciones -->
+        <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+            <i class="fa-solid fa-book-open text-emerald-600"></i> Guía de Estudio y Soluciones
+        </h3>
+        
+        <div id="reviewContainer" class="space-y-6">
+            <!-- Se llena con JS -->
+        </div>
+
+        <div class="mt-10 text-center">
+            <button onclick="location.reload()" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-emerald-700 transition">
+                <i class="fa-solid fa-rotate-right mr-2"></i>Volver a intentar
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal de Confirmación -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">¿Terminar el examen?</h3>
+            <p id="unansweredWarning" class="text-slate-600 mb-6 text-sm">Aún tienes preguntas sin responder. ¿Estás seguro de que deseas finalizar?</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-slate-50 transition">Cancelar</button>
+                <button onclick="processResults()" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition">Sí, finalizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT / MOTOR DEL EXAMEN
+         ========================================== -->
+    <script>
+        // --- BASE DE DATOS DE PREGUNTAS (Estilo UdeA) ---
+        const textoBiologia = "Los virus son entidades biológicas que se encuentran en el límite entre lo vivo y lo inerte. Carecen de metabolismo propio y de maquinaria para sintetizar proteínas, por lo que son parásitos intracelulares obligados. Un virus típico consiste en material genético (ADN o ARN) rodeado por una cubierta proteica llamada cápside, y en algunos casos, una envoltura lipídica. Cuando un virus infecta una célula huésped, inyecta su material genético, secuestrando la maquinaria celular para producir múltiples copias de sí mismo. Este proceso a menudo culmina con la lisis (ruptura) y muerte de la célula huésped, liberando los nuevos viriones para infectar otras células. Aunque causan enfermedades graves en humanos, animales y plantas, los virus también juegan un papel ecológico crucial al regular poblaciones bacterianas en los océanos y facilitar la transferencia horizontal de genes, siendo motores importantes de la evolución.";
+
+        const textoVeterinaria = "La zoonosis se refiere a cualquier enfermedad infecciosa que se transmite de forma natural de los animales vertebrados a los seres humanos, y viceversa. Los patógenos zoonóticos pueden ser bacterias, virus, parásitos o agentes no convencionales y pueden propagarse a los humanos por contacto directo o a través de los alimentos, el agua o el medio ambiente. Representan un importante problema de salud pública en todo el mundo debido a nuestra estrecha relación con los animales en la agricultura, como animales de compañía y en el entorno natural. La prevención de las zoonosis es compleja. Requiere un enfoque colaborativo y multisectorial conocido como 'Una sola salud' (One Health), el cual reconoce que la salud de las personas está estrechamente conectada con la salud de los animales y nuestro entorno compartido. El control de patógenos en su reservorio animal es la medida más eficaz para proteger la salud humana.";
+
+        const quizData = [
+            // --- RAZONAMIENTO LÓGICO ---
+            {
+                id: 1,
+                subject: "Razonamiento Lógico",
+                text: "En una clínica veterinaria hay 45 animales entre perros y gatos. Si el número de perros excede al número de gatos en 15, ¿cuántos gatos hay en la clínica?",
+                options: {
+                    A: "15",
+                    B: "30",
+                    C: "20",
+                    D: "10"
+                },
+                correct: "A",
+                explanation: "Planteamos un sistema de ecuaciones. Sea P el número de perros y G el número de gatos. Sabemos que P + G = 45 y que P = G + 15. Sustituimos la segunda en la primera: (G + 15) + G = 45. Esto es 2G + 15 = 45. Restamos 15 a ambos lados: 2G = 30. Dividimos por 2: G = 15. Por lo tanto, hay 15 gatos."
+            },
+            {
+                id: 2,
+                subject: "Razonamiento Lógico",
+                text: "Si 3 vacas producen 30 litros de leche en 3 días, ¿cuántos litros de leche producirán 6 vacas en 6 días asumiendo el mismo rendimiento?",
+                options: {
+                    A: "60",
+                    B: "90",
+                    C: "120",
+                    D: "150"
+                },
+                correct: "C",
+                explanation: "Es un problema de regla de tres compuesta. Primero, hallamos el rendimiento diario por vaca. Si 3 vacas dan 30 litros en 3 días, entonces 3 vacas dan 10 litros en 1 día. Esto significa que 1 vaca da 10/3 litros por día. Ahora queremos saber cuánto dan 6 vacas en 6 días: (10/3 litros/vaca/día) * 6 vacas * 6 días = 10/3 * 36 = 120 litros."
+            },
+            {
+                id: 3,
+                subject: "Razonamiento Lógico",
+                text: "La suma de las edades de tres caballos de carreras es de 12 años. Si sus edades son números enteros consecutivos, ¿cuál es la edad del caballo mayor?",
+                options: {
+                    A: "3",
+                    B: "4",
+                    C: "5",
+                    D: "6"
+                },
+                correct: "C",
+                explanation: "Si las edades son números enteros consecutivos, podemos representarlas como x, (x+1) y (x+2). Su suma es: x + x + 1 + x + 2 = 12. Simplificando: 3x + 3 = 12. Restamos 3: 3x = 9. Dividimos por 3: x = 3. Las edades son 3, 4 y 5. La edad del caballo mayor es 5 años."
+            },
+            {
+                id: 4,
+                subject: "Razonamiento Lógico",
+                text: "En un establo cuadrado, se ata una oveja a una de las esquinas interiores con una cuerda de 5 metros de largo. El lado del establo mide 10 metros. ¿Cuál es el área aproximada en la que la oveja puede pastar dentro del establo? (Asuma pi = 3.14)",
+                options: {
+                    A: "19.6 m²",
+                    B: "25 m²",
+                    C: "78.5 m²",
+                    D: "100 m²"
+                },
+                correct: "A",
+                explanation: "El establo es cuadrado, por lo que las esquinas forman un ángulo de 90 grados. Al estar atada en una esquina interior, la oveja puede moverse formando un cuarto de círculo (90° es 1/4 de 360°). El área de un círculo completo con radio 5m es A = pi * r² = 3.14 * (5)² = 3.14 * 25 = 78.5 m². Como solo puede acceder a un cuarto de este círculo, el área es 78.5 / 4 = 19.625 m²."
+            },
+            {
+                id: 5,
+                subject: "Razonamiento Lógico",
+                text: "Observe la siguiente secuencia de números relacionados con el peso de unos cachorros en semanas consecutivas: 2, 6, 14, 30, X. ¿Cuál es el valor de X?",
+                options: {
+                    A: "46",
+                    B: "60",
+                    C: "62",
+                    D: "64"
+                },
+                correct: "C",
+                explanation: "Buscamos el patrón de aumento entre los números: de 2 a 6 hay +4. De 6 a 14 hay +8. De 14 a 30 hay +16. Vemos que el incremento se va duplicando (4, 8, 16). Por lo tanto, el siguiente incremento debe ser el doble de 16, es decir, +32. Sumamos esto al último número: 30 + 32 = 62."
+            },
+            {
+                id: 6,
+                subject: "Razonamiento Lógico",
+                text: "Juan tiene el doble de dinero que María para comprar alimento para animales. Si Juan le da a María $20.000, ambos tendrán la misma cantidad. ¿Cuánto dinero tenían juntos originalmente?",
+                options: {
+                    A: "$60.000",
+                    B: "$80.000",
+                    C: "$120.000",
+                    D: "$160.000"
+                },
+                correct: "C",
+                explanation: "Sea J el dinero de Juan y M el dinero de María. Sabemos que J = 2M. Si Juan da $20.000, su nuevo saldo es (J - 20.000) y el de María es (M + 20.000). Igualamos: J - 20.000 = M + 20.000. Sustituimos J: 2M - 20.000 = M + 20.000. Resolviendo para M: M = 40.000. Si M = 40.000, entonces J = 80.000. Juntos tenían 80.000 + 40.000 = $120.000."
+            },
+            {
+                id: 7,
+                subject: "Razonamiento Lógico",
+                text: "Una bacteria se divide en dos cada hora. Si introducimos una bacteria en un frasco a las 12:00 PM y el frasco se llena completamente a las 8:00 PM, ¿a qué hora estaba el frasco exactamente a la mitad de su capacidad?",
+                options: {
+                    A: "4:00 PM",
+                    B: "6:00 PM",
+                    C: "7:00 PM",
+                    D: "7:30 PM"
+                },
+                correct: "C",
+                explanation: "Este es un problema clásico de crecimiento exponencial. Si la cantidad de bacterias se duplica cada hora, y el frasco está lleno (100%) a las 8:00 PM, significa que una hora antes (a las 7:00 PM) había exactamente la mitad de las bacterias necesarias para llenarlo (50%). En la siguiente hora (de 7 a 8), esa mitad se duplicó, llenando el frasco."
+            },
+            {
+                id: 8,
+                subject: "Razonamiento Lógico",
+                text: "En una urna hay 4 bolas rojas, 5 azules y 3 verdes. Si se extrae una bola al azar, ¿cuál es la probabilidad de que NO sea roja?",
+                options: {
+                    A: "1/3",
+                    B: "2/3",
+                    C: "1/4",
+                    D: "3/4"
+                },
+                correct: "B",
+                explanation: "Total de bolas = 4 (rojas) + 5 (azules) + 3 (verdes) = 12 bolas. Bolas que no son rojas = azules (5) + verdes (3) = 8 bolas. La probabilidad se calcula como (casos favorables) / (casos posibles) = 8 / 12. Simplificando la fracción dividiendo entre 4, obtenemos 2/3."
+            },
+            {
+                id: 9,
+                subject: "Razonamiento Lógico",
+                text: "Un veterinario receta una dosis de medicamento de 0.5 mg por cada kilogramo de peso del animal. Si un perro pesa 24 kg y las pastillas vienen en presentaciones de 4 mg, ¿cuántas pastillas debe darle al perro?",
+                options: {
+                    A: "2",
+                    B: "3",
+                    C: "4",
+                    D: "6"
+                },
+                correct: "B",
+                explanation: "Primero, calculamos la dosis total necesaria para el perro: 24 kg * 0.5 mg/kg = 12 mg. Si cada pastilla contiene 4 mg, dividimos la dosis total entre la cantidad por pastilla: 12 mg / 4 mg/pastilla = 3 pastillas."
+            },
+            {
+                id: 10,
+                subject: "Razonamiento Lógico",
+                text: "Todos los felinos son carnívoros. Ningún herbívoro es carnívoro. Por lo tanto, se puede concluir lógicamente que:",
+                options: {
+                    A: "Algunos felinos son herbívoros.",
+                    B: "Ningún felino es herbívoro.",
+                    C: "Todos los carnívoros son felinos.",
+                    D: "Los herbívoros no comen felinos."
+                },
+                correct: "B",
+                explanation: "Es un silogismo clásico. Premisa 1: Felinos -> Carnívoros. Premisa 2: Herbívoros -> NO Carnívoros. Si un animal es herbívoro, no puede ser carnívoro. Como todos los felinos deben ser carnívoros, es imposible que un felino sea herbívoro. Por ende, ningún felino es herbívoro."
+            },
+
+            // --- COMPETENCIA LECTORA (Texto 1: Biología) ---
+            {
+                id: 11,
+                subject: "Competencia Lectora",
+                context: textoBiologia,
+                text: "Según el texto, la razón principal por la cual los virus son considerados parásitos intracelulares obligados es porque:",
+                options: {
+                    A: "Poseen una cubierta proteica llamada cápside.",
+                    B: "Carecen de metabolismo y maquinaria para sintetizar proteínas.",
+                    C: "Destruyen la célula huésped mediante el proceso de lisis.",
+                    D: "Se encuentran en el límite entre lo vivo y lo inerte."
+                },
+                correct: "B",
+                explanation: "En el texto se afirma explícitamente: 'Carecen de metabolismo propio y de maquinaria para sintetizar proteínas, por lo que son parásitos intracelulares obligados'. La opción B es una interpretación literal de la causa."
+            },
+            {
+                id: 12,
+                subject: "Competencia Lectora",
+                context: textoBiologia,
+                text: "La palabra 'secuestrando' en el contexto del texto hace referencia a:",
+                options: {
+                    A: "El aislamiento del virus dentro de la célula para no ser detectado.",
+                    B: "La sustracción del material genético de la célula huésped.",
+                    C: "La toma de control y uso forzado de los mecanismos celulares en beneficio del virus.",
+                    D: "El encapsulamiento del virus en una envoltura lipídica."
+                },
+                correct: "C",
+                explanation: "En la lectura dice: 'inyecta su material genético, secuestrando la maquinaria celular para producir múltiples copias de sí mismo'. Se usa el término de manera metafórica para indicar que el virus toma el control del sistema de la célula obligándola a trabajar para él (fabricar más virus)."
+            },
+            {
+                id: 13,
+                subject: "Competencia Lectora",
+                context: textoBiologia,
+                text: "Del texto se puede inferir que los virus:",
+                options: {
+                    A: "Son entidades exclusivamente perjudiciales para los ecosistemas terrestres y acuáticos.",
+                    B: "Poseen la capacidad de reproducirse en cualquier medio acuoso sin necesidad de otras células.",
+                    C: "Tienen un impacto ambivalente en la naturaleza, causando daño individual pero aportando al dinamismo ecológico.",
+                    D: "Son considerados organismos vivos completos debido a que poseen material genético."
+                },
+                correct: "C",
+                explanation: "Es una pregunta de inferencia global. El texto menciona que causan 'enfermedades graves' (daño individual) pero inmediatamente contrasta diciendo que 'juegan un papel ecológico crucial' y son 'motores importantes de la evolución'. Por lo tanto, su impacto tiene dos caras (ambivalente)."
+            },
+            {
+                id: 14,
+                subject: "Competencia Lectora",
+                context: textoBiologia,
+                text: "El título más adecuado para este fragmento sería:",
+                options: {
+                    A: "La lisis celular y sus consecuencias.",
+                    B: "Naturaleza, ciclo de infección e importancia ecológica de los virus.",
+                    C: "Las enfermedades virales en humanos y plantas.",
+                    D: "La estructura genética del ADN viral."
+                },
+                correct: "B",
+                explanation: "El texto tiene tres partes claras: define qué es un virus y su estructura (Naturaleza), describe cómo infecta y se multiplica (Ciclo de infección) y explica su rol en el medio ambiente (Importancia ecológica). La opción B engloba toda la temática."
+            },
+            {
+                id: 15,
+                subject: "Competencia Lectora",
+                context: textoBiologia,
+                text: "La afirmación 'los virus también juegan un papel ecológico crucial' cumple la función argumentativa de:",
+                options: {
+                    A: "Refutar la idea de que los virus no tienen material genético propio.",
+                    B: "Matizar o equilibrar la percepción puramente patológica que se tiene de los virus.",
+                    C: "Confirmar que la lisis es el proceso más importante de la biología.",
+                    D: "Introducir una nueva teoría sobre el origen de la vida en la Tierra."
+                },
+                correct: "B",
+                explanation: "La palabra 'Aunque' introduce la frase 'Aunque causan enfermedades graves... los virus también juegan un papel ecológico crucial'. Esta estructura sirve para matizar o contrastar la idea negativa previa (enfermedad) con un aspecto positivo e indispensable de los virus en el ecosistema."
+            },
+
+            // --- COMPETENCIA LECTORA (Texto 2: Veterinaria / One Health) ---
+            {
+                id: 16,
+                subject: "Competencia Lectora",
+                context: textoVeterinaria,
+                text: "De acuerdo con el texto, una 'zoonosis' es:",
+                options: {
+                    A: "Una enfermedad exclusiva de los animales que afecta el desarrollo agrícola.",
+                    B: "Cualquier patógeno microscópico presente en el agua contaminada.",
+                    C: "Una enfermedad infecciosa transmisible entre animales vertebrados y humanos.",
+                    D: "El enfoque colaborativo para curar a las mascotas en los hogares."
+                },
+                correct: "C",
+                explanation: "El texto define explícitamente el término en la primera oración: 'se transmite de forma natural de los animales vertebrados a los seres humanos, y viceversa'."
+            },
+            {
+                id: 17,
+                subject: "Competencia Lectora",
+                context: textoVeterinaria,
+                text: "El concepto 'Una sola salud' (One Health) se fundamenta en la idea de que:",
+                options: {
+                    A: "Todos los seres humanos deben recibir una única vacuna universal.",
+                    B: "La salud humana, animal y ambiental son interdependientes.",
+                    C: "Las enfermedades animales no pueden ser transmitidas a los seres humanos si se aíslan.",
+                    D: "Se debe priorizar el desarrollo de medicamentos para humanos por encima de la veterinaria."
+                },
+                correct: "B",
+                explanation: "El texto dice: 'reconoce que la salud de las personas está estrechamente conectada con la salud de los animales y nuestro entorno compartido'. Esto es sinónimo de interdependencia entre estos tres factores."
+            },
+            {
+                id: 18,
+                subject: "Competencia Lectora",
+                context: textoVeterinaria,
+                text: "Según el texto, ¿cuál es la medida más eficaz para proteger a los humanos de estas enfermedades?",
+                options: {
+                    A: "Evitar completamente el contacto con mascotas domésticas.",
+                    B: "Controlar y manejar el agente infeccioso directamente en la población animal.",
+                    C: "Hervir toda el agua y cocinar los alimentos a altas temperaturas.",
+                    D: "Desarrollar un sistema inmunológico genéticamente resistente."
+                },
+                correct: "B",
+                explanation: "La oración final es literal: 'El control de patógenos en su reservorio animal es la medida más eficaz para proteger la salud humana'. La opción B parafrasea esta idea."
+            },
+            {
+                id: 19,
+                subject: "Competencia Lectora",
+                context: textoVeterinaria,
+                text: "En la expresión 'agentes no convencionales', el autor probablemente se refiere a:",
+                options: {
+                    A: "Enfermedades psicológicas provocadas por los animales.",
+                    B: "Microorganismos conocidos como bacterias o parásitos comunes.",
+                    C: "Entidades patógenas atípicas, como los priones (proteínas infecciosas).",
+                    D: "Sustancias químicas tóxicas presentes en los alimentos."
+                },
+                correct: "C",
+                explanation: "Esta es una pregunta de inferencia por contexto. El texto enumera 'bacterias, virus, parásitos o agentes no convencionales'. Como ya mencionó los comunes, 'no convencionales' se refiere a entidades biológicas infecciosas atípicas (en biología/veterinaria, los priones, como en la enfermedad de las vacas locas, encajan aquí)."
+            },
+            {
+                id: 20,
+                subject: "Competencia Lectora",
+                context: textoVeterinaria,
+                text: "El tono del texto puede describirse como:",
+                options: {
+                    A: "Informativo y científico.",
+                    B: "Alarmista y preventivo.",
+                    C: "Narrativo y literario.",
+                    D: "Político y dogmático."
+                },
+                correct: "A",
+                explanation: "El autor expone conceptos (zoonosis, One Health), sus causas y las formas de abordarlo de manera objetiva, técnica y clara. No usa adjetivos exagerados (no es alarmista), ni cuenta una historia (narrativo), sino que informa sobre un concepto de salud pública."
+            }
+        ];
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let timerInterval;
+        let secondsRemaining = 90 * 60; // 1 hora y 30 minutos
+
+        // --- FUNCIONES CORE ---
+        function startExam() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+            document.getElementById('examScreen').classList.add('flex');
+            document.getElementById('timerDisplay').classList.remove('hidden');
+            document.getElementById('timerDisplay').classList.add('flex');
+            
+            buildQuestionGrid();
+            renderQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            const display = document.getElementById('timeRemaining');
+            timerInterval = setInterval(() => {
+                secondsRemaining--;
+                
+                let hrs = Math.floor(secondsRemaining / 3600);
+                let mins = Math.floor((secondsRemaining % 3600) / 60);
+                let secs = secondsRemaining % 60;
+                
+                display.textContent = 
+                    `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if(secondsRemaining <= 300) { // Menos de 5 min
+                    document.getElementById('timerDisplay').classList.remove('bg-emerald-800');
+                    document.getElementById('timerDisplay').classList.add('bg-red-600', 'animate-pulse');
+                }
+
+                if (secondsRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    processResults();
+                }
+            }, 1000);
+        }
+
+        function buildQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            quizData.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `grid-btn-${idx}`;
+                btn.className = 'w-10 h-10 rounded-md bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 transition border border-slate-200';
+                btn.textContent = idx + 1;
+                btn.onclick = () => {
+                    currentQuestionIndex = idx;
+                    renderQuestion();
+                };
+                grid.appendChild(btn);
+            });
+            updateGridStyles();
+        }
+
+        function updateGridStyles() {
+            quizData.forEach((_, idx) => {
+                const btn = document.getElementById(`grid-btn-${idx}`);
+                
+                // Limpiar clases
+                btn.className = 'w-10 h-10 rounded-md font-medium transition border text-sm ';
+                
+                if (userAnswers[idx] !== null) {
+                    btn.className += 'bg-emerald-500 text-white border-emerald-600 shadow-inner';
+                } else {
+                    btn.className += 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
+                }
+
+                // Resaltar la actual
+                if (idx === currentQuestionIndex) {
+                    btn.classList.add('ring-2', 'ring-purple-500', 'ring-offset-1');
+                }
+            });
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentQuestionIndex];
+            
+            // Textos superiores
+            document.getElementById('subjectBadge').textContent = q.subject;
+            if(q.subject === 'Razonamiento Lógico') {
+                document.getElementById('subjectBadge').className = 'bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider';
+            } else {
+                document.getElementById('subjectBadge').className = 'bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider';
+            }
+            
+            document.getElementById('currentQNum').textContent = currentQuestionIndex + 1;
+            
+            // Contexto de lectura
+            const contextBox = document.getElementById('readingContextBox');
+            if (q.context) {
+                contextBox.innerHTML = `<strong>Lectura:</strong><br>${q.context}`;
+                contextBox.classList.remove('hidden');
+            } else {
+                contextBox.classList.add('hidden');
+            }
+
+            // Enunciado
+            document.getElementById('questionText').textContent = q.text;
+
+            // Opciones
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            for (const [key, value] of Object.entries(q.options)) {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50 mb-2 flex items-start gap-4 ${userAnswers[currentQuestionIndex] === key ? 'selected' : ''}`;
+                btn.onclick = () => selectOption(key);
+                
+                btn.innerHTML = `
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full border border-current flex items-center justify-center font-bold text-sm bg-white">${key}</span>
+                    <span class="pt-1 text-slate-700">${value}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            }
+
+            // Botones de navegación
+            document.getElementById('btnPrev').disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                document.getElementById('btnNext').innerHTML = 'Revisar <i class="fa-solid fa-check-double ml-2"></i>';
+                document.getElementById('btnNext').onclick = confirmFinishExam;
+            } else {
+                document.getElementById('btnNext').innerHTML = 'Siguiente <i class="fa-solid fa-arrow-right ml-2"></i>';
+                document.getElementById('btnNext').onclick = () => navigateQuestion(1);
+            }
+
+            updateGridStyles();
+        }
+
+        function selectOption(optionKey) {
+            userAnswers[currentQuestionIndex] = optionKey;
+            renderQuestion(); // Re-renderiza para mostrar la selección
+        }
+
+        function navigateQuestion(direction) {
+            currentQuestionIndex += direction;
+            renderQuestion();
+        }
+
+        function confirmFinishExam() {
+            const unanswered = userAnswers.filter(a => a === null).length;
+            if (unanswered > 0) {
+                document.getElementById('unansweredWarning').textContent = `Aún tienes ${unanswered} pregunta(s) sin responder. Si finalizas ahora, contarán como incorrectas. ¿Estás seguro?`;
+                document.getElementById('confirmModal').classList.remove('hidden');
+                document.getElementById('confirmModal').classList.add('flex');
+            } else {
+                processResults();
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        // --- SISTEMA DE RESULTADOS Y RETROALIMENTACIÓN ---
+        function processResults() {
+            clearInterval(timerInterval);
+            closeConfirmModal();
+            
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('flex');
+            document.getElementById('timerDisplay').classList.add('hidden');
+            
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            document.getElementById('resultsScreen').classList.add('block');
+
+            let score = 0;
+            let logicaCorrect = 0;
+            let lectoraCorrect = 0;
+
+            quizData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) {
+                    score++;
+                    if(q.subject === 'Razonamiento Lógico') logicaCorrect++;
+                    else lectoraCorrect++;
+                }
+            });
+
+            // Actualizar Score Circle
+            document.getElementById('scoreText').textContent = score;
+            document.getElementById('scoreLogica').textContent = `${logicaCorrect}/10`;
+            document.getElementById('scoreLectora').textContent = `${lectoraCorrect}/10`;
+            
+            const circle = document.getElementById('scoreCircle');
+            const circumference = 289; // 2 * pi * 46
+            const offset = circumference - (score / quizData.length) * circumference;
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 100);
+
+            renderReview();
+            window.scrollTo(0, 0);
+        }
+
+        function renderReview() {
+            const container = document.getElementById('reviewContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const userAnswer = userAnswers[idx];
+                const isCorrect = userAnswer === q.correct;
+                
+                let answerStatusHtml = '';
+                if (userAnswer === null) {
+                    answerStatusHtml = `<span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold">Sin responder</span>`;
+                } else if (isCorrect) {
+                    answerStatusHtml = `<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-check mr-1"></i> Correcta</span>`;
+                } else {
+                    answerStatusHtml = `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-xmark mr-1"></i> Incorrecta (Marcaste: ${userAnswer})</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl border-l-4 p-6 shadow-sm ${isCorrect ? 'border-emerald-500' : 'border-red-500'}`;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-sm font-bold text-slate-400">Pregunta ${idx + 1}</span>
+                            <h4 class="text-lg font-medium text-slate-800 mt-1">${q.text}</h4>
+                        </div>
+                        <div class="ml-4 flex-shrink-0">
+                            ${answerStatusHtml}
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm font-semibold text-slate-500 mb-2">Opciones:</p>
+                            <ul class="space-y-2 text-sm">
+                                ${Object.entries(q.options).map(([key, value]) => `
+                                    <li class="flex items-start gap-2 ${key === q.correct ? 'text-emerald-700 font-bold bg-emerald-50 p-2 rounded' : 'text-slate-600'}">
+                                        <span class="font-bold">${key}.</span> <span>${value}</span>
+                                        ${key === q.correct ? '<i class="fa-solid fa-check-circle mt-1"></i>' : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                            <h5 class="font-bold text-purple-800 text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-chalkboard-user"></i> Guía de Solución
+                            </h5>
+                            <p class="text-slate-700 text-sm leading-relaxed">${q.explanation}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
